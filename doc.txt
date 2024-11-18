@@ -1,755 +1,188 @@
-#
-#
-#
-# -----------------------------------waterjug-----------------------------------------
-#
-#
-#
-def water_jug_dfs(capacity1, capacity2, target):
-    visited = set()  # To track visited states
-    path = []  # To store the solution path
+//--------------------------html form ------------------------------------
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Registration Form</title>
+</head>
+<body>
+    <form id="registrationForm" action="/submit" method="POST">
+        <h2>User Registration</h2>
+        <div>
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        <div>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit">Register</button>
+    </form>
+</body>
+</html>
 
-    def dfs(jug1, jug2):
-        # If we have already visited this state, return False (avoid cycles)
-        if (jug1, jug2) in visited:
-            return False
-        
-        # Mark the state as visited
-        visited.add((jug1, jug2))
+//--------------------------------- form submission javascript code also for http methods------------------
 
-        # Append the current state to the path
-        path.append((jug1, jug2))
+const express = require("express");
+const bodyParser = require("body-parser");
 
-        # If the target is achieved in either jug, return True
-        if jug1 == target or jug2 == target:
-            return True
+const app = express();
+app.use(bodyParser.urlencoded({ extended: true }));
 
-        # Explore all possible transitions (DFS recursive calls)
-        # Fill 3-liter jug
-        if dfs(3, jug2):
-            return True
-        # Fill 5-liter jug
-        if dfs(jug1, 5):
-            return True
-        # Empty 3-liter jug
-        if dfs(0, jug2):
-            return True
-        # Empty 5-liter jug
-        if dfs(jug1, 0):
-            return True
-        # Pour water from 3-liter jug into 5-liter jug
-        if dfs(max(0, jug1 - (5 - jug2)), min(5, jug1 + jug2)):
-            return True
-        # Pour water from 5-liter jug into 3-liter jug
-        if dfs(min(3, jug1 + jug2), max(0, jug2 - (3 - jug1))):
-            return True
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/index.html");
+});
 
-        # If none of the transitions lead to the goal, backtrack
-        path.pop()
-        return False
+app.post("/submit", (req, res) => {
+  const { username, email, password } = req.body;
+  console.log("Received:", { username, email, password });
+  res.send(
+    `<div><h1>Welcome ${username}</h1>Your Registration is successful</div>`
+  );
+});
 
-    # Start DFS from the initial state (0, 0)
-    dfs(0, 0)
-
-    # If we found a solution, return the path
-    return path
-
-# Example Usage
-capacity1 = 3  # Capacity of the 3-liter jug
-capacity2 = 5  # Capacity of the 5-liter jug
-target = 4     # Target amount to measure
-
-solution = water_jug_dfs(capacity1, capacity2, target)
-
-if solution:
-    print("Solution steps:")
-    for step in solution:
-        print(step)
-else:
-    print("No solution found.")
-
-import matplotlib.pyplot as plt
-import networkx as nx
-
-# Function to create and visualize the state space transitions for DFS
-def visualize_dfs_solution(solution):
-    G = nx.DiGraph()
-
-    # Add the nodes and edges based on the DFS solution path
-    for i in range(len(solution) - 1):
-        G.add_edge(solution[i], solution[i + 1])
-
-    pos = nx.spring_layout(G)  # Position the nodes for visualization
-
-    plt.figure(figsize=(8, 6))
-
-    # Draw the graph with nodes and labels
-    nx.draw(G, pos, with_labels=True, node_color='lightgreen', node_size=1500, font_size=12, font_weight='bold')
-    nx.draw_networkx_edges(G, pos, edgelist=list(G.edges()), edge_color='blue', width=2)
-
-    plt.title("Water Jug Problem - DFS Solution Path")
-    plt.show()
-
-# Visualize the DFS solution
-if solution:
-    visualize_dfs_solution(solution)
+app.listen(3000, () => {
+  console.log("Server running on port 3000");
 
 
-#
-#
-# -----------------------------------simple chat bot with random reply-----------------------------------------
-#
-#
-#
+//--------------------------------------serve static file using express.js-----------------------------
 
-import random
-# Dictionary of responses
-responses = {
-    "hello": ["Hi there!", "Hello!", "Hey!", "Greetings!"],
-    "how are you": ["I'm good, thanks!", "I'm doing well!", "All good!"],
-    "bye": ["Goodbye!", "See you later!", "Bye!"],
-    "name": ["I'm SimpleBot!", "My name is SimpleBot!", "Call me SimpleBot!"],
-}
+const express = require('express');
+const path = require('path');
 
-def chatbot(user_input):
-    # Convert input to lowercase
-    user_input = user_input.lower()
-    
-    # Check for keywords and return appropriate response
-    if "hello" in user_input or "hi" in user_input:
-        return random.choice(responses["hello"])
-    elif "how are you" in user_input:
-        return random.choice(responses["how are you"])
-    elif "name" in user_input:
-        return random.choice(responses["name"])
-    elif "bye" in user_input:
-        return random.choice(responses["bye"])
-    else:
-        return "I'm not sure how to respond to that."
+const app = express();
+const PORT = 3000;
 
-# Main chat loop
-print("Bot: Hi! I'm a simple chatbot. Type 'bye' to exit.")
-while True:
-    user_input = input("You: ")
-    if user_input.lower() == 'bye':
-        print("Bot:", random.choice(responses["bye"]))
-        break
-    response = chatbot(user_input)
-    print("Bot:", response)
+// Serve static files from 'public' directory
+app.use(express.static(path.join(__dirname, 'public')));
 
-#
-#
-#
-# ----------------------------------- simple chat bot with json -----------------------------------------
-#
-#
-#
+// Optional: Specific route for home page
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+});
+});
 
 
-# responses.json
-{
-    "greetings": {
-        "patterns": ["hello", "hi", "hey", "what's up"],
-        "responses": [
-            "Hello! How can I help you today?",
-            "Hi there!",
-            "Hey! Nice to meet you!"
-        ]
-    },
-    "how_are_you": {
-        "patterns": ["how are you", "how's it going", "how do you do"],
-        "responses": [
-            "I'm doing great, thanks for asking!",
-            "I'm good! How about you?",
-            "All good here!"
-        ]
-    },
-    "name": {
-        "patterns": ["what is your name", "who are you", "what should i call you"],
-        "responses": [
-            "I'm JsonBot!",
-            "My name is JsonBot, nice to meet you!",
-            "You can call me JsonBot"
-        ]
-    },
-    "bye": {
-        "patterns": ["bye", "goodbye", "see you", "farewell"],
-        "responses": [
-            "Goodbye! Have a great day!",
-            "Bye! Take care!",
-            "See you later!"
-        ]
+
+
+//---------------------------------------------html form for mongodb authentication-----------------------------
+
+<!DOCTYPE html>
+<html>
+<body>
+    <h2>Registration</h2>
+    <form action="/submit" method="POST">
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit">Register</button>
+    </form>
+
+    <h2>Login</h2>
+    <form action="/login" method="POST">
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit">Login</button>
+    </form>
+</body>
+</html>
+
+//-------------------------------------------------- mongodb authentication javascript code----------------------------------
+
+const express = require("express");
+const mongoose = require("mongoose");
+const bodyParser = require("body-parser");
+
+// const MONGODB_URI =
+//   "mongodb+srv://technobeat83:y9hp0yVBBDLQ1x39@cluster0.9ghhb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+
+const MONGODB_URI = "mongodb://localhost:27017/userDB";
+
+mongoose.connect(MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+const userSchema = new mongoose.Schema({
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+});
+
+// Create User Model
+const User = mongoose.model("User", userSchema);
+
+const app = express();
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/users.html");
+});
+
+app.post("/submit", async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+
+    const existingUser = await User.findOne({
+      $or: [{ email }, { username }],
+    });
+
+    if (existingUser) {
+      return res.status(400).send("User already exists");
     }
-}
 
-#------------main code--------
-import json
-import random
+    const newUser = new User({
+      username,
+      email,
+      password,
+    });
+
+    await newUser.save();
+
+    res.send("Registration successful!");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server error during registration");
+  }
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    const user = await User.findOne({ username, password });
+
+    if (!user) {
+      return res.status(400).send("Invalid credentials");
+    }
+    res.send("Login successful!");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server error during login");
+  }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
-class JsonChatbot:
-    def __init__(self, json_file='responses.json'):
-        # Load responses from JSON file
-        try:
-            with open(json_file, 'r') as file:
-                self.responses = json.load(file)
-        except FileNotFoundError:
-            print(f"Error: {json_file} not found!")
-            exit(1)
-
-    def get_response(self, user_input):
-        # Convert input to lowercase for matching
-        user_input = user_input.lower()
-
-        # Check each response category
-        for category in self.responses:
-            # Check if any pattern in the category matches the input
-            if any(pattern in user_input for pattern in self.responses[category]['patterns']):
-                # Return a random response from matching category
-                return random.choice(self.responses[category]['responses'])
-        
-        # Default response if no pattern matches
-        return "I'm not sure how to respond to that."
-
-    def chat(self):
-        print("Bot: Hello! I'm JsonBot. Type 'bye' to exit.")
-        
-        while True:
-            user_input = input("You: ").strip()
-            
-            # Check for exit command
-            if user_input.lower() == 'bye':
-                print("Bot:", random.choice(self.responses['bye']['responses']))
-                break
-                
-            response = self.get_response(user_input)
-            print("Bot:", response)
-
-# Run the chatbot
-if __name__ == "__main__":
-    bot = JsonChatbot()
-    bot.chat()
-
-#
-#
-#
-# ----------------------------------- Bredth FS algorith -----------------------------------------
-#
-#
-#
-from collections import defaultdict, deque
-
-class Graph:
-    def __init__(self):
-        # Using defaultdict to store the graph
-        self.graph = defaultdict(list)
-    
-    def add_edge(self, vertex1, vertex2):
-        """Add an edge between vertex1 and vertex2"""
-        self.graph[vertex1].append(vertex2)
-    
-    def bfs(self, start_vertex):
-        """
-        Perform BFS starting from start_vertex
-        Returns the order of vertices visited
-        """
-        # Set to keep track of visited vertices
-        visited = set()
-        
-        # Create a queue for BFS
-        queue = deque()
-        
-        # List to store the order of vertices visited
-        traversal_order = []
-        
-        # Start by visiting the start vertex
-        queue.append(start_vertex)
-        visited.add(start_vertex)
-        
-        while queue:
-            # Dequeue a vertex from queue
-            current_vertex = queue.popleft()
-            traversal_order.append(current_vertex)
-            
-            # Get all adjacent vertices
-            # If an adjacent has not been visited, then visit it
-            for neighbor in self.graph[current_vertex]:
-                if neighbor not in visited:
-                    visited.add(neighbor)
-                    queue.append(neighbor)
-        
-        return traversal_order
-
-    def print_bfs(self, start_vertex):
-        """Print BFS traversal starting from start_vertex"""
-        traversal = self.bfs(start_vertex)
-        print("BFS starting from vertex", start_vertex)
-        print(" -> ".join(str(vertex) for vertex in traversal))
-
-# Example usage
-def example_usage():
-    # Create a graph
-    g = Graph()
-    
-    # Add edges to create the following graph:
-    # 0 -- 1 -- 2
-    # |    |    |
-    # 3 -- 4    5
-    g.add_edge(0, 1)
-    g.add_edge(0, 3)
-    g.add_edge(1, 2)
-    g.add_edge(1, 4)
-    g.add_edge(2, 5)
-    g.add_edge(3, 4)
-    
-    # Perform BFS starting from vertex 0
-    g.print_bfs(0)
-
-if __name__ == "__main__":
-    example_usage()
-#
-#
-#
-# ----------------------------------- Depth FS algorith -----------------------------------------
-#
-#
-#
-from collections import defaultdict
-
-class Graph:
-    def __init__(self):
-        # Using defaultdict to store the graph
-        self.graph = defaultdict(list)
-    
-    def add_edge(self, vertex1, vertex2):
-        """Add an edge between vertex1 and vertex2"""
-        self.graph[vertex1].append(vertex2)
-    
-    def dfs_recursive(self, vertex, visited=None):
-        """
-        Recursive DFS implementation
-        Returns list of vertices in DFS order
-        """
-        # Initialize visited set on first call
-        if visited is None:
-            visited = set()
-            
-        # Mark current vertex as visited and add to result
-        visited.add(vertex)
-        traversal_order = [vertex]
-        
-        # Recur for all adjacent vertices
-        for neighbor in self.graph[vertex]:
-            if neighbor not in visited:
-                # Extend the traversal order with neighbors' traversal
-                traversal_order.extend(self.dfs_recursive(neighbor, visited))
-                
-        return traversal_order
-    
-    def dfs_iterative(self, start_vertex):
-        """
-        Iterative DFS implementation using stack
-        Returns list of vertices in DFS order
-        """
-        # Set to keep track of visited vertices
-        visited = set()
-        
-        # Stack for DFS
-        stack = [start_vertex]
-        
-        # List to store traversal order
-        traversal_order = []
-        
-        while stack:
-            # Pop vertex from stack
-            vertex = stack.pop()
-            
-            # If vertex hasn't been visited
-            if vertex not in visited:
-                # Mark it as visited and add to result
-                visited.add(vertex)
-                traversal_order.append(vertex)
-                
-                # Add all unvisited neighbors to stack
-                # Reverse order to match recursive DFS
-                for neighbor in reversed(self.graph[vertex]):
-                    if neighbor not in visited:
-                        stack.append(neighbor)
-        
-        return traversal_order
-    
-    def print_dfs(self, start_vertex, method="recursive"):
-        """Print DFS traversal starting from start_vertex"""
-        print(f"DFS ({method}) starting from vertex {start_vertex}")
-        if method == "recursive":
-            traversal = self.dfs_recursive(start_vertex)
-        else:
-            traversal = self.dfs_iterative(start_vertex)
-        print(" -> ".join(str(vertex) for vertex in traversal))
-
-# Example usage with a sample graph
-def example_usage():
-    # Create a graph
-    g = Graph()
-    
-    # Add edges to create the following graph:
-    #     1 --- 2
-    #    /      |
-    #   0       |
-    #    \      |
-    #     3 --- 4
-    g.add_edge(0, 1)
-    g.add_edge(0, 3)
-    g.add_edge(1, 2)
-    g.add_edge(2, 4)
-    g.add_edge(3, 4)
-    
-    # Perform DFS using both methods
-    print("Recursive DFS:")
-    g.print_dfs(0, "recursive")
-    
-    print("\nIterative DFS:")
-    g.print_dfs(0, "iterative")
-
-if __name__ == "__main__":
-    example_usage()
-
-#
-#
-#
-# ----------------------------------- Best FS algorith -----------------------------------------
-#
-#
-#
-import heapq
-from dataclasses import dataclass, field
-from typing import Dict, List, Set, Tuple
-
-@dataclass(order=True)
-class Node:
-    state: str = field(compare=False)
-    cost: float
-    parent: str = field(compare=False)
-
-class BestFirstSearch:
-    def __init__(self):
-        self.graph = {}  # Adjacency list with costs
-        self.heuristics = {}  # Heuristic values for each node
-        
-    def add_edge(self, from_node: str, to_node: str, cost: float):
-        """Add an edge to the graph with its cost"""
-        if from_node not in self.graph:
-            self.graph[from_node] = []
-        if to_node not in self.graph:
-            self.graph[to_node] = []
-        
-        self.graph[from_node].append((to_node, cost))
-        # For undirected graph, uncomment the following line:
-        # self.graph[to_node].append((from_node, cost))
-        
-    def set_heuristic(self, node: str, heuristic_value: float):
-        """Set the heuristic value for a node"""
-        self.heuristics[node] = heuristic_value
-        
-    def best_first_search(self, start: str, goal: str) -> Tuple[List[str], float]:
-        """
-        Perform Best First Search from start to goal
-        Returns: (path, total_cost) or (None, float('inf')) if no path exists
-        """
-        # Priority queue for nodes to explore (cost, node)
-        frontier = []
-        heapq.heappush(frontier, Node(start, self.heuristics.get(start, 0), None))
-        
-        # Set to keep track of explored nodes
-        explored = set()
-        
-        # Dictionary to keep track of path and costs
-        came_from = {start: None}
-        cost_so_far = {start: 0}
-        
-        while frontier:
-            current = heapq.heappop(frontier)
-            current_state = current.state
-            
-            # If we reached the goal, reconstruct and return the path
-            if current_state == goal:
-                path = self._reconstruct_path(came_from, start, goal)
-                return path, cost_so_far[goal]
-            
-            # Skip if we've already explored this node
-            if current_state in explored:
-                continue
-                
-            explored.add(current_state)
-            
-            # Explore neighbors
-            for next_state, cost in self.graph.get(current_state, []):
-                if next_state not in explored:
-                    new_cost = cost_so_far[current_state] + cost
-                    
-                    if next_state not in cost_so_far or new_cost < cost_so_far[next_state]:
-                        cost_so_far[next_state] = new_cost
-                        priority = self.heuristics.get(next_state, 0)
-                        heapq.heappush(frontier, Node(next_state, priority, current_state))
-                        came_from[next_state] = current_state
-        
-        # No path found
-        return None, float('inf')
-    
-    def _reconstruct_path(self, came_from: Dict[str, str], start: str, goal: str) -> List[str]:
-        """Reconstruct the path from start to goal"""
-        current = goal
-        path = []
-        
-        while current is not None:
-            path.append(current)
-            current = came_from[current]
-            
-        path.reverse()
-        return path
-
-# Example usage
-def example_usage():
-    # Create a graph instance
-    bfs = BestFirstSearch()
-    
-    # Add edges (connections between cities with distances)
-    bfs.add_edge('A', 'B', 4)
-    bfs.add_edge('A', 'C', 3)
-    bfs.add_edge('B', 'D', 5)
-    bfs.add_edge('C', 'D', 6)
-    bfs.add_edge('C', 'E', 2)
-    bfs.add_edge('D', 'E', 2)
-    bfs.add_edge('D', 'F', 3)
-    bfs.add_edge('E', 'F', 5)
-    
-    # Set heuristic values (estimated distances to goal 'F')
-    bfs.set_heuristic('A', 8)
-    bfs.set_heuristic('B', 6)
-    bfs.set_heuristic('C', 5)
-    bfs.set_heuristic('D', 3)
-    bfs.set_heuristic('E', 4)
-    bfs.set_heuristic('F', 0)
-    
-    # Find the best path from A to F
-    path, cost = bfs.best_first_search('A', 'F')
-    
-    if path:
-        print(f"Best path found: {' -> '.join(path)}")
-        print(f"Total cost: {cost}")
-    else:
-        print("No path found!")
-
-if __name__ == "__main__":
-    example_usage()
-
-
-
- ####### Python program for A* Search Algorithm  ###############
-import math
-import heapq
-
-# Define the Cell class
-
-
-class Cell:
-    def __init__(self):
-      # Parent cell's row index
-        self.parent_i = 0
-    # Parent cell's column index
-        self.parent_j = 0
- # Total cost of the cell (g + h)
-        self.f = float('inf')
-    # Cost from start to this cell
-        self.g = float('inf')
-    # Heuristic cost from this cell to destination
-        self.h = 0
-
-
-# Define the size of the grid
-ROW = 9
-COL = 10
-
-# Check if a cell is valid (within the grid)
-
-
-def is_valid(row, col):
-    return (row >= 0) and (row < ROW) and (col >= 0) and (col < COL)
-
-# Check if a cell is unblocked
-
-
-def is_unblocked(grid, row, col):
-    return grid[row][col] == 1
-
-# Check if a cell is the destination
-
-
-def is_destination(row, col, dest):
-    return row == dest[0] and col == dest[1]
-
-# Calculate the heuristic value of a cell (Euclidean distance to destination)
-
-
-def calculate_h_value(row, col, dest):
-    return ((row - dest[0]) ** 2 + (col - dest[1]) ** 2) ** 0.5
-
-# Trace the path from source to destination
-
-
-def trace_path(cell_details, dest):
-    print("The Path is ")
-    path = []
-    row = dest[0]
-    col = dest[1]
-
-    # Trace the path from destination to source using parent cells
-    while not (cell_details[row][col].parent_i == row and cell_details[row][col].parent_j == col):
-        path.append((row, col))
-        temp_row = cell_details[row][col].parent_i
-        temp_col = cell_details[row][col].parent_j
-        row = temp_row
-        col = temp_col
-
-    # Add the source cell to the path
-    path.append((row, col))
-    # Reverse the path to get the path from source to destination
-    path.reverse()
-
-    # Print the path
-    for i in path:
-        print("->", i, end=" ")
-    print()
-
-#----------------------- Implement the A* search algorithm------------------------
-
-def a_star_search(grid, src, dest):
-    # Check if the source and destination are valid
-    if not is_valid(src[0], src[1]) or not is_valid(dest[0], dest[1]):
-        print("Source or destination is invalid")
-        return
-
-    # Check if the source and destination are unblocked
-    if not is_unblocked(grid, src[0], src[1]) or not is_unblocked(grid, dest[0], dest[1]):
-        print("Source or the destination is blocked")
-        return
-
-    # Check if we are already at the destination
-    if is_destination(src[0], src[1], dest):
-        print("We are already at the destination")
-        return
-
-    # Initialize the closed list (visited cells)
-    closed_list = [[False for _ in range(COL)] for _ in range(ROW)]
-    # Initialize the details of each cell
-    cell_details = [[Cell() for _ in range(COL)] for _ in range(ROW)]
-
-    # Initialize the start cell details
-    i = src[0]
-    j = src[1]
-    cell_details[i][j].f = 0
-    cell_details[i][j].g = 0
-    cell_details[i][j].h = 0
-    cell_details[i][j].parent_i = i
-    cell_details[i][j].parent_j = j
-
-    # Initialize the open list (cells to be visited) with the start cell
-    open_list = []
-    heapq.heappush(open_list, (0.0, i, j))
-
-    # Initialize the flag for whether destination is found
-    found_dest = False
-
-    # Main loop of A* search algorithm
-    while len(open_list) > 0:
-        # Pop the cell with the smallest f value from the open list
-        p = heapq.heappop(open_list)
-
-        # Mark the cell as visited
-        i = p[1]
-        j = p[2]
-        closed_list[i][j] = True
-
-        # For each direction, check the successors
-        directions = [(0, 1), (0, -1), (1, 0), (-1, 0),
-                      (1, 1), (1, -1), (-1, 1), (-1, -1)]
-        for dir in directions:
-            new_i = i + dir[0]
-            new_j = j + dir[1]
-
-            # If the successor is valid, unblocked, and not visited
-            if is_valid(new_i, new_j) and is_unblocked(grid, new_i, new_j) and not closed_list[new_i][new_j]:
-                # If the successor is the destination
-                if is_destination(new_i, new_j, dest):
-                    # Set the parent of the destination cell
-                    cell_details[new_i][new_j].parent_i = i
-                    cell_details[new_i][new_j].parent_j = j
-                    print("The destination cell is found")
-                    # Trace and print the path from source to destination
-                    trace_path(cell_details, dest)
-                    found_dest = True
-                    return
-                else:
-                    # Calculate the new f, g, and h values
-                    g_new = cell_details[i][j].g + 1.0
-                    h_new = calculate_h_value(new_i, new_j, dest)
-                    f_new = g_new + h_new
-
-                    # If the cell is not in the open list or the new f value is smaller
-                    if cell_details[new_i][new_j].f == float('inf') or cell_details[new_i][new_j].f > f_new:
-                        # Add the cell to the open list
-                        heapq.heappush(open_list, (f_new, new_i, new_j))
-                        # Update the cell details
-                        cell_details[new_i][new_j].f = f_new
-                        cell_details[new_i][new_j].g = g_new
-                        cell_details[new_i][new_j].h = h_new
-                        cell_details[new_i][new_j].parent_i = i
-                        cell_details[new_i][new_j].parent_j = j
-
-    # If the destination is not found after visiting all cells
-    if not found_dest:
-        print("Failed to find the destination cell")
-
-# Driver Code
-
-
-def main():
-    # Define the grid (1 for unblocked, 0 for blocked)
-    grid = [
-        [1, 0, 1, 1, 1, 1, 0, 1, 1, 1],
-        [1, 1, 1, 0, 1, 1, 1, 0, 1, 1],
-        [1, 1, 1, 0, 1, 1, 0, 1, 0, 1],
-        [0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
-        [1, 1, 1, 0, 1, 1, 1, 0, 1, 0],
-        [1, 0, 1, 1, 1, 1, 0, 1, 0, 0],
-        [1, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-        [1, 0, 1, 1, 1, 1, 0, 1, 1, 1],
-        [1, 1, 1, 0, 0, 0, 1, 0, 0, 1]
-    ]
-
-    # Define the source and destination
-    src = [8, 0]
-    dest = [0, 0]
-
-    # Run the A* search algorithm
-    a_star_search(grid, src, dest)
-
-
-if __name__ == "__main__":
-    main()
-
-
-#------------------------------- Recursive Python function to solve the tower of hanoi-------------------------
-
-
-def TowerOfHanoi(n , source, destination, auxiliary):
-    if n==1:
-        print ("Move disk 1 from source",source,"to destination",destination)
-        return
-    TowerOfHanoi(n-1, source, auxiliary, destination)
-    print ("Move disk",n,"from source",source,"to destination",destination)
-    TowerOfHanoi(n-1, auxiliary, destination, source)
-        
-# Driver code
-n = 4
-TowerOfHanoi(n,'A','B','C') 
-# A, C, B are the name of rods
