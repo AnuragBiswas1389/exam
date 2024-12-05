@@ -1,188 +1,84 @@
-//--------------------------html form ------------------------------------
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>User Registration Form</title>
-</head>
-<body>
-    <form id="registrationForm" action="/submit" method="POST">
-        <h2>User Registration</h2>
-        <div>
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-        </div>
-        <div>
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
-        </div>
-        <div>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <button type="submit">Register</button>
-    </form>
-</body>
-</html>
+//--------------------factorial--------------
+Sure! Here's a simple C program to find the factorial of a number using a loop:
 
-//--------------------------------- form submission javascript code also for http methods------------------
+```c
+#include <stdio.h>
 
-const express = require("express");
-const bodyParser = require("body-parser");
+int main() {
+    int n, i;
+    unsigned long long fact = 1;
 
-const app = express();
-app.use(bodyParser.urlencoded({ extended: true }));
+    printf("Enter an integer: ");
+    scanf("%d", &n);
 
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/index.html");
-});
-
-app.post("/submit", (req, res) => {
-  const { username, email, password } = req.body;
-  console.log("Received:", { username, email, password });
-  res.send(
-    `<div><h1>Welcome ${username}</h1>Your Registration is successful</div>`
-  );
-});
-
-app.listen(3000, () => {
-  console.log("Server running on port 3000");
-
-
-//--------------------------------------serve static file using express.js-----------------------------
-
-const express = require('express');
-const path = require('path');
-
-const app = express();
-const PORT = 3000;
-
-
-app.use(express.static(path.join(__dirname)));
-
-
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-});
-});
-
-
-
-
-//---------------------------------------------html form for mongodb authentication-----------------------------
-
-<!DOCTYPE html>
-<html>
-<body>
-    <h2>Registration</h2>
-    <form action="/submit" method="POST">
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="email" name="email" placeholder="Email" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <button type="submit">Register</button>
-    </form>
-
-    <h2>Login</h2>
-    <form action="/login" method="POST">
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <button type="submit">Login</button>
-    </form>
-</body>
-</html>
-
-//-------------------------------------------------- mongodb authentication javascript code----------------------------------
-
-const express = require("express");
-const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
-
-// const MONGODB_URI =
-//   "mongodb+srv://technobeat83:y9hp0yVBBDLQ1x39@cluster0.9ghhb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-
-const MONGODB_URI = "mongodb://localhost:27017/userDB";
-
-mongoose.connect(MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-
-const userSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-});
-
-// Create User Model
-const User = mongoose.model("User", userSchema);
-
-const app = express();
-app.use(bodyParser.urlencoded({ extended: true }));
-
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/users.html");
-});
-
-app.post("/submit", async (req, res) => {
-  try {
-    const { username, email, password } = req.body;
-
-    const existingUser = await User.findOne({
-      $or: [{ email }, { username }],
-    });
-
-    if (existingUser) {
-      return res.status(400).send("User already exists");
+    if (n < 0)
+        printf("Error! Factorial of a negative number doesn't exist.\n");
+    else {
+        for (i = 1; i <= n; ++i) {
+            fact *= i;
+        }
+        printf("Factorial of %d = %llu\n", n, fact);
     }
 
-    const newUser = new User({
-      username,
-      email,
-      password,
-    });
+    return 0;
+}
 
-    await newUser.save();
+//===== palindrone
 
-    res.send("Registration successful!");
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Server error during registration");
-  }
-});
+#include <stdio.h>
+#include <string.h>
 
-app.post("/login", async (req, res) => {
-  try {
-    const { username, password } = req.body;
+int main() {
+    char string1[100];
+    int i, length;
+    int flag = 0;
 
-    const user = await User.findOne({ username, password });
+    printf("Enter a string: ");
+    scanf("%s", string1);
 
-    if (!user) {
-      return res.status(400).send("Invalid credentials");
+    length = strlen(string1);
+
+    for (i = 0; i < length / 2; i++) {
+        if (string1[i] != string1[length - i - 1]) {
+            flag = 1;
+            break;
+        }
     }
-    res.send("Login successful!");
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Server error during login");
-  }
-});
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+    if (flag) {
+        printf("%s is not a palindrome\n", string1);
+    } else {
+        printf("%s is a palindrome\n", string1);
+    }
 
+    return 0;
+}
+
+
+
+//------------reverse a string
+
+#include <stdio.h>
+#include <string.h>
+
+// Function to reverse the string
+void reverseString(char* str) {
+    int length = strlen(str);
+    int i;
+    for (i = 0; i < length / 2; i++) {
+        char temp = str[i];
+        str[i] = str[length - i - 1];
+        str[length - i - 1] = temp;
+    }
+}
+
+int main() {
+    char str[100];
+    printf("Enter a string: ");
+    gets(str); // Read the string from user
+
+    reverseString(str);
+
+    printf("Reversed string: %s\n", str);
+    return 0;
+}
