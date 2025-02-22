@@ -145,3 +145,61 @@ ct = ColumnTransformer(transformers=[("Gender", OneHotEncoder(), [1])], remainde
 X = ct.fit_transform(X)
 # Verify the transformation
 print("\nTransformed X (One-Hot Encoded):\n", X)
+
+# Install & Use Category Encoders
+!pip install category_encoders
+import category_encoders as ce
+
+df = pd.DataFrame({'height': ['tall', 'medium', 'short', 'tall', 'medium', 'short', 'tall', 'medium', 'short']})
+encoder = ce.BinaryEncoder(cols=['height'], return_df=True)
+df_encoded = encoder.fit_transform(df)
+df = pd.concat([df, df_encoded.add_prefix('transformed_')], axis=1)
+print("\nBinary Encoded Data:\n", df)
+
+# Train-Test Split
+from sklearn.model_selection import train_test_split
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.25, random_state=1)
+print("Training Data Shape:", X_train.shape)
+
+# Load Another Dataset (Diabetes)
+dataset = pd.read_csv("/content/drive/MyDrive/diabetes.csv")
+X = dataset.iloc[:, :-1].values  # Features
+Y = dataset.iloc[:, -1].values   # Target
+print(dataset.head())
+
+# Apply Standard Scaling
+from sklearn.preprocessing import StandardScaler
+stdscalar = StandardScaler()
+X_train = stdscalar.fit_transform(X_train)
+X_test = stdscalar.transform(X_test)
+
+# Apply Min-Max Scaling
+from sklearn.preprocessing import MinMaxScaler
+minmaxscalar = MinMaxScaler()
+X_train = minmaxscalar.fit_transform(X_train)
+
+# Load Employee Dataset
+data = pd.read_csv("/content/drive/MyDrive/employee_data.csv")
+print(data.head())
+
+# Boxplot for Age Distribution
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.boxplot(x=data['Age'])
+plt.show()
+
+# Calculate IQR for Outlier Removal
+Q1 = data['Age'].quantile(0.25)
+Q3 = data['Age'].quantile(0.75)
+IQR = Q3 - Q1
+print("IQR:", IQR)
+
+# Define Limits for Outlier Removal
+lower_limit = Q1 - 1.5 * IQR
+upper_limit = Q3 + 1.5 * IQR
+print("Lower Limit:", lower_limit)
+print("Upper Limit:", upper_limit)
+
+# Remove Outliers Based on IQR
+data = data[(data['Age'] >= lower_limit) & (data['Age'] <= upper_limit)]
+print("\nFiltered Data after Outlier Removal:\n", data.head())
