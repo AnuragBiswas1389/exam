@@ -107,3 +107,41 @@ print("\nProcessed Data with One-Hot Encoding:\n", X_df.head())
 
 X_df.to_csv('processed_data.csv', index=False)
 print("\nProcessed data saved as 'processed_data.csv'")
+
+------------------------------ experiment 3 ------------------
+import pandas as pd
+from google.colab import drive
+
+# Mount Google Drive (if not already mounted)
+drive.mount('/content/drive', force_remount=True)
+
+# Define Correct File Path
+file_path = "/content/drive/MyDrive/MallCustomers.csv"  # Adjust if inside a subfolder
+
+# Check if File Exists
+import os
+if os.path.exists(file_path):
+    print(" File found! Loading dataset...")
+    data = pd.read_csv(file_path)
+    print(data.head())  # Display first few rows
+else:
+    print("File not found! Check the Google Drive path.")
+data = pd.read_csv("/content/drive/MyDrive/MallCustomers.csv")
+print(data.head())
+
+# Separate Independent & Dependent Variables
+X = data.iloc[:, :-1].values  # Features
+Y = data.iloc[:, 4].values  # Target variable
+
+# Apply Label Encoding for 'Gender' Column
+from sklearn.preprocessing import LabelEncoder
+labelencode = LabelEncoder()
+X[:, 1] = labelencode.fit_transform(X[:, 1])  # Ensure X[:,1] is categorical
+# Apply One-Hot Encoding on 'Gender' Column
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.compose import ColumnTransformer
+
+ct = ColumnTransformer(transformers=[("Gender", OneHotEncoder(), [1])], remainder="passthrough")
+X = ct.fit_transform(X)
+# Verify the transformation
+print("\nTransformed X (One-Hot Encoded):\n", X)
