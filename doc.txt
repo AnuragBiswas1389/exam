@@ -1,429 +1,193 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <TextView
-        android:id="@+id/helloWorldText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello, World!"
-        android:textSize="24sp"
-        android:layout_centerInParent="true" />
-</RelativeLayout>
-
-
-//-------------------1 experiment---------------
-
-import numpy as np
-import pandas as pd
-import os
-os.chdir('/content/drive/MyDrive/Colab Notebooks/Data Science/Sample Data')
-data = pd.read_csv('MallCustomers.csv')
-data.head()
-X = data.iloc[:,:-1].values
-Y = data.iloc[:,4].values
-
-from sklearn.preprocessing import LabelEncoder
-lablelencode = LabelEncoder()
-X[:,1] = lablelencode.fit_transform(X[:,1])
-X
-
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.compose import ColumnTransformer
-ct = ColumnTransformer([("Gender", OneHotEncoder(), [1])], remainder = 'passthrough')
-ct.fit_transform(X)
-
-!pip install category_encoders
-import category_encoders as ce
-df = pd.DataFrame({'height':['tall', 'medium', 'short', 'tall', 'medium', 'short', 'tall', 'medium', 'short']})
-encoder = ce.BinaryEncoder(cols=['height'], return_df=True, mapping = [{'col': 'height', 'mapping':{'None':0, 'tall':1, 'medium':2, 'short':3}}])
-print(df)
-df_encoded = encoder.fit_transform(df)
-df = pd.concat([df, df_encoded.add_prefix('transformed_')], axis=1)
-print(df)
-
-from sklearn.model_selection import train_test_split
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = 0.25, random_state = 1)
-print(X_train.shape)
-
-dataset = pd.read_csv('diabetes.csv')
-X = dataset.iloc[:,:-1].values
-Y = dataset.iloc[:,8].values
-dataset.head()
-
-np.set_printoptions(edgeitems=127)
-
-from sklearn.preprocessing import StandardScaler
-stdscalar = StandardScaler()
-X_train = stdscalar.fit_transform(X_train)
-X_test = stdscalar.transform(X_test)
-X_test
-
-from sklearn.preprocessing import MinMaxScaler
-minmaxscalar = MinMaxScaler()
-X_train = minmaxscalar.fit_transform(X_train)
-X_train
-data = pd.read_csv('employee_data.csv')
-data.head()
-import matplotlib.pyplot as plt
-import seaborn as sns
-sns.boxplot(x = data['Age'])
-
-Q1 = data['Age'].quantile(0.25)
-Q3 = data['Age'].quantile(0.75)
-IQR = Q3 - Q1
-print(IQR)
-lower_limit = Q1 - 1.5 * IQR
-upper_limit = Q3 + 1.5 * IQR
-print(lower_limit)
-print(upper_limit)
-data = data[(data['Age'] > lower_limit) & (data['Age'] < upper_limit)]
-data
-
-data = data[(data['Age'] > Q1) & (data['Age'] < Q3)]
-data
-
-______________________ experiment 2 __________________
-
-import pandas as pd
-import numpy as np
-from google.colab import files
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-from sklearn.impute import SimpleImputer
-
-uploaded = files.upload() 
-file_name = list(uploaded.keys())[0]    
-df = pd.read_csv(file_name)
-
-print("Missing Values:\n", df.isnull().sum())
-
-for column in df.columns:
-    if df[column].dtype == 'object': 
-        df.loc[:, column] = df[column].fillna(df[column].mode()[0]) 
-    else:  
-        df.loc[:, column] = df[column].fillna(df[column].mean())  
-
-label_encoders = {}
-for column in df.select_dtypes(include=['object']).columns:
-    label_encoders[column] = LabelEncoder()
-    df.loc[:, column] = label_encoders[column].fit_transform(df[column])
-
-X = df.iloc[:, :-1].values
-y = df.iloc[:, -1].values  
-
-ohe = OneHotEncoder(handle_unknown='ignore', sparse_output=False)
-X_encoded = ohe.fit_transform(X)
-
-
-X_df = pd.DataFrame(X_encoded)
-print("\nProcessed Data with One-Hot Encoding:\n", X_df.head())
-
-
-X_df.to_csv('processed_data.csv', index=False)
-print("\nProcessed data saved as 'processed_data.csv'")
-
------------------------------- experiment 3 ------------------
-import pandas as pd
-from google.colab import drive
-
-# Mount Google Drive (if not already mounted)
-drive.mount('/content/drive', force_remount=True)
-
-# Define Correct File Path
-file_path = "/content/drive/MyDrive/MallCustomers.csv"  # Adjust if inside a subfolder
-
-# Check if File Exists
-import os
-if os.path.exists(file_path):
-    print(" File found! Loading dataset...")
-    data = pd.read_csv(file_path)
-    print(data.head())  # Display first few rows
-else:
-    print("File not found! Check the Google Drive path.")
-data = pd.read_csv("/content/drive/MyDrive/MallCustomers.csv")
-print(data.head())
-
-# Separate Independent & Dependent Variables
-X = data.iloc[:, :-1].values  # Features
-Y = data.iloc[:, 4].values  # Target variable
-
-# Apply Label Encoding for 'Gender' Column
-from sklearn.preprocessing import LabelEncoder
-labelencode = LabelEncoder()
-X[:, 1] = labelencode.fit_transform(X[:, 1])  # Ensure X[:,1] is categorical
-# Apply One-Hot Encoding on 'Gender' Column
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.compose import ColumnTransformer
-
-ct = ColumnTransformer(transformers=[("Gender", OneHotEncoder(), [1])], remainder="passthrough")
-X = ct.fit_transform(X)
-# Verify the transformation
-print("\nTransformed X (One-Hot Encoded):\n", X)
-
-# Install & Use Category Encoders
-!pip install category_encoders
-import category_encoders as ce
-
-df = pd.DataFrame({'height': ['tall', 'medium', 'short', 'tall', 'medium', 'short', 'tall', 'medium', 'short']})
-encoder = ce.BinaryEncoder(cols=['height'], return_df=True)
-df_encoded = encoder.fit_transform(df)
-df = pd.concat([df, df_encoded.add_prefix('transformed_')], axis=1)
-print("\nBinary Encoded Data:\n", df)
-
-# Train-Test Split
-from sklearn.model_selection import train_test_split
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.25, random_state=1)
-print("Training Data Shape:", X_train.shape)
-
-# Load Another Dataset (Diabetes)
-dataset = pd.read_csv("/content/drive/MyDrive/diabetes.csv")
-X = dataset.iloc[:, :-1].values  # Features
-Y = dataset.iloc[:, -1].values   # Target
-print(dataset.head())
-
-# Apply Standard Scaling
-from sklearn.preprocessing import StandardScaler
-stdscalar = StandardScaler()
-X_train = stdscalar.fit_transform(X_train)
-X_test = stdscalar.transform(X_test)
-
-# Apply Min-Max Scaling
-from sklearn.preprocessing import MinMaxScaler
-minmaxscalar = MinMaxScaler()
-X_train = minmaxscalar.fit_transform(X_train)
-
-# Load Employee Dataset
-data = pd.read_csv("/content/drive/MyDrive/employee_data.csv")
-print(data.head())
-
-# Boxplot for Age Distribution
-import matplotlib.pyplot as plt
-import seaborn as sns
-sns.boxplot(x=data['Age'])
-plt.show()
-
-# Calculate IQR for Outlier Removal
-Q1 = data['Age'].quantile(0.25)
-Q3 = data['Age'].quantile(0.75)
-IQR = Q3 - Q1
-print("IQR:", IQR)
-
-# Define Limits for Outlier Removal
-lower_limit = Q1 - 1.5 * IQR
-upper_limit = Q3 + 1.5 * IQR
-print("Lower Limit:", lower_limit)
-print("Upper Limit:", upper_limit)
-
-# Remove Outliers Based on IQR
-data = data[(data['Age'] >= lower_limit) & (data['Age'] <= upper_limit)]
-print("\nFiltered Data after Outlier Removal:\n", data.head())
-
-
-
-
-//-------------------1 experiment---------------
-
-import numpy as np
-import pandas as pd
-import os
-os.chdir('/content/drive/MyDrive/Colab Notebooks/Data Science/Sample Data')
-data = pd.read_csv('MallCustomers.csv')
-data.head()
-X = data.iloc[:,:-1].values
-Y = data.iloc[:,4].values
-
-from sklearn.preprocessing import LabelEncoder
-lablelencode = LabelEncoder()
-X[:,1] = lablelencode.fit_transform(X[:,1])
-X
-
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.compose import ColumnTransformer
-ct = ColumnTransformer([("Gender", OneHotEncoder(), [1])], remainder = 'passthrough')
-ct.fit_transform(X)
-
-!pip install category_encoders
-import category_encoders as ce
-df = pd.DataFrame({'height':['tall', 'medium', 'short', 'tall', 'medium', 'short', 'tall', 'medium', 'short']})
-encoder = ce.BinaryEncoder(cols=['height'], return_df=True, mapping = [{'col': 'height', 'mapping':{'None':0, 'tall':1, 'medium':2, 'short':3}}])
-print(df)
-df_encoded = encoder.fit_transform(df)
-df = pd.concat([df, df_encoded.add_prefix('transformed_')], axis=1)
-print(df)
-
-from sklearn.model_selection import train_test_split
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = 0.25, random_state = 1)
-print(X_train.shape)
-
-dataset = pd.read_csv('diabetes.csv')
-X = dataset.iloc[:,:-1].values
-Y = dataset.iloc[:,8].values
-dataset.head()
-
-np.set_printoptions(edgeitems=127)
-
-from sklearn.preprocessing import StandardScaler
-stdscalar = StandardScaler()
-X_train = stdscalar.fit_transform(X_train)
-X_test = stdscalar.transform(X_test)
-X_test
-
-from sklearn.preprocessing import MinMaxScaler
-minmaxscalar = MinMaxScaler()
-X_train = minmaxscalar.fit_transform(X_train)
-X_train
-data = pd.read_csv('employee_data.csv')
-data.head()
-import matplotlib.pyplot as plt
-import seaborn as sns
-sns.boxplot(x = data['Age'])
-
-Q1 = data['Age'].quantile(0.25)
-Q3 = data['Age'].quantile(0.75)
-IQR = Q3 - Q1
-print(IQR)
-lower_limit = Q1 - 1.5 * IQR
-upper_limit = Q3 + 1.5 * IQR
-print(lower_limit)
-print(upper_limit)
-data = data[(data['Age'] > lower_limit) & (data['Age'] < upper_limit)]
-data
-
-data = data[(data['Age'] > Q1) & (data['Age'] < Q3)]
-data
-
-______________________ experiment 2 __________________
-
-import pandas as pd
-import numpy as np
-from google.colab import files
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-from sklearn.impute import SimpleImputer
-
-uploaded = files.upload() 
-file_name = list(uploaded.keys())[0]    
-df = pd.read_csv(file_name)
-
-print("Missing Values:\n", df.isnull().sum())
-
-for column in df.columns:
-    if df[column].dtype == 'object': 
-        df.loc[:, column] = df[column].fillna(df[column].mode()[0]) 
-    else:  
-        df.loc[:, column] = df[column].fillna(df[column].mean())  
-
-label_encoders = {}
-for column in df.select_dtypes(include=['object']).columns:
-    label_encoders[column] = LabelEncoder()
-    df.loc[:, column] = label_encoders[column].fit_transform(df[column])
-
-X = df.iloc[:, :-1].values
-y = df.iloc[:, -1].values  
-
-ohe = OneHotEncoder(handle_unknown='ignore', sparse_output=False)
-X_encoded = ohe.fit_transform(X)
-
-
-X_df = pd.DataFrame(X_encoded)
-print("\nProcessed Data with One-Hot Encoding:\n", X_df.head())
-
-
-X_df.to_csv('processed_data.csv', index=False)
-print("\nProcessed data saved as 'processed_data.csv'")
-
------------------------------- experiment 3 ------------------
-import pandas as pd
-from google.colab import drive
-
-# Mount Google Drive (if not already mounted)
-drive.mount('/content/drive', force_remount=True)
-
-# Define Correct File Path
-file_path = "/content/drive/MyDrive/MallCustomers.csv"  # Adjust if inside a subfolder
-
-# Check if File Exists
-import os
-if os.path.exists(file_path):
-    print(" File found! Loading dataset...")
-    data = pd.read_csv(file_path)
-    print(data.head())  # Display first few rows
-else:
-    print("File not found! Check the Google Drive path.")
-data = pd.read_csv("/content/drive/MyDrive/MallCustomers.csv")
-print(data.head())
-
-# Separate Independent & Dependent Variables
-X = data.iloc[:, :-1].values  # Features
-Y = data.iloc[:, 4].values  # Target variable
-
-# Apply Label Encoding for 'Gender' Column
-from sklearn.preprocessing import LabelEncoder
-labelencode = LabelEncoder()
-X[:, 1] = labelencode.fit_transform(X[:, 1])  # Ensure X[:,1] is categorical
-# Apply One-Hot Encoding on 'Gender' Column
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.compose import ColumnTransformer
-
-ct = ColumnTransformer(transformers=[("Gender", OneHotEncoder(), [1])], remainder="passthrough")
-X = ct.fit_transform(X)
-# Verify the transformation
-print("\nTransformed X (One-Hot Encoded):\n", X)
-
-# Install & Use Category Encoders
-!pip install category_encoders
-import category_encoders as ce
-
-df = pd.DataFrame({'height': ['tall', 'medium', 'short', 'tall', 'medium', 'short', 'tall', 'medium', 'short']})
-encoder = ce.BinaryEncoder(cols=['height'], return_df=True)
-df_encoded = encoder.fit_transform(df)
-df = pd.concat([df, df_encoded.add_prefix('transformed_')], axis=1)
-print("\nBinary Encoded Data:\n", df)
-
-# Train-Test Split
-from sklearn.model_selection import train_test_split
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.25, random_state=1)
-print("Training Data Shape:", X_train.shape)
-
-# Load Another Dataset (Diabetes)
-dataset = pd.read_csv("/content/drive/MyDrive/diabetes.csv")
-X = dataset.iloc[:, :-1].values  # Features
-Y = dataset.iloc[:, -1].values   # Target
-print(dataset.head())
-
-# Apply Standard Scaling
-from sklearn.preprocessing import StandardScaler
-stdscalar = StandardScaler()
-X_train = stdscalar.fit_transform(X_train)
-X_test = stdscalar.transform(X_test)
-
-# Apply Min-Max Scaling
-from sklearn.preprocessing import MinMaxScaler
-minmaxscalar = MinMaxScaler()
-X_train = minmaxscalar.fit_transform(X_train)
-
-# Load Employee Dataset
-data = pd.read_csv("/content/drive/MyDrive/employee_data.csv")
-print(data.head())
-
-# Boxplot for Age Distribution
-import matplotlib.pyplot as plt
-import seaborn as sns
-sns.boxplot(x=data['Age'])
-plt.show()
-
-# Calculate IQR for Outlier Removal
-Q1 = data['Age'].quantile(0.25)
-Q3 = data['Age'].quantile(0.75)
-IQR = Q3 - Q1
-print("IQR:", IQR)
-
-# Define Limits for Outlier Removal
-lower_limit = Q1 - 1.5 * IQR
-upper_limit = Q3 + 1.5 * IQR
-print("Lower Limit:", lower_limit)
-print("Upper Limit:", upper_limit)
-
-# Remove Outliers Based on IQR
-data = data[(data['Age'] >= lower_limit) & (data['Age'] <= upper_limit)]
-print("\nFiltered Data after Outlier Removal:\n", data.head())
+-------------1. 
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+std::vector<int> twoSum(std::vector<int>& nums, int target) {
+    std::unordered_map<int, int> numMap;
+
+    for (int i = 0; i < nums.size(); i++) {
+        int complement = target - nums[i];
+        if (numMap.find(complement) != numMap.end()) {
+            return {numMap[complement], i};
+        }
+        numMap[nums[i]] = i;
+    }
+
+    return {}; 
+}
+
+int main() {
+    std::vector<int> nums = {2, 7, 11, 15};
+    int target = 9;
+    std::vector<int> result = twoSum(nums, target);
+
+    if (!result.empty()) {
+        std::cout << "Indices: [" << result[0] << ", " << result[1] << "]" << std::endl;
+    } else {
+        std::cout << "No solution found." << std::endl;
+    }
+
+    return 0;
+}
+
+
+------------2.Reverse Words in a String (C Solution)
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+void reverseString(char* s, int start, int end) {
+    while (start < end) {
+        char temp = s[start];
+        s[start] = s[end];
+        s[end] = temp;
+        start++;
+        end--;
+    }
+}
+
+char* reverseWords(char* s) {
+    int length = strlen(s);
+    reverseString(s, 0, length - 1); 
+
+    int start = 0;
+    for (int i = 0; i <= length; i++) {
+        if (s[i] == ' ' || s[i] == '\0') {
+            reverseString(s, start, i - 1);
+            start = i + 1;
+        }
+    }
+
+    return s;
+}
+
+int main() {
+    char str[] = "hello world";
+    printf("Original string: %s\n", str);
+    printf("Reversed string: %s\n", reverseWords(str));
+
+    return 0;
+}
+
+
+--------------------3. count unique words
+#include <stdio.h>
+#include <ctype.h>
+
+int firstUniqChar(char * s){
+
+    int freq[26] = {0};
+    int len = strlen(s);
+
+    for (int i = 0; i < len; i++) {
+
+        if (islower(s[i])) {
+            freq[s[i] - 'a']++;
+        }
+    } 
+
+    for (int i = 0; i < len; i++) {
+
+        if (islower(s[i]) && freq[s[i] - 'a'] == 1){          
+            return i;
+        }
+    }
+
+  return -1; 
+}
+
+int main() {
+    char str[] = "leetcode";
+    int index = firstUniqChar(str);
+
+    printf("Index of first non-repeating  character: %d\n", index);
+
+    return 0;
+}
+
+
+4.-------
+
+#include <iostream>
+#include <stack>
+#include <string>
+#include <unordered_map>
+
+bool isValid(std::string s) {
+    std::stack<char> stack;
+    std::unordered_map<char, char> mapping = {
+        {')', '('},
+        {']', '['},
+        {'}', '{'}
+    };
+
+    for (char c : s) {
+        if (c == '(' || c == '[' || c == '{') {
+            stack.push(c);
+        } else if (c == ')' || c == ']' || c == '}') {
+            if (stack.empty() || mapping[c] != stack.top()) {
+                return false;
+            }
+            stack.pop();
+        }
+    }
+
+    return stack.empty();
+}
+
+int main() {
+    std::string s = "()[]{}";
+    std::cout << "Is valid: " << (isValid(s) ? "true" : "false") << std::endl;
+
+    s = "(]";
+    std::cout << "Is valid: " << (isValid(s) ? "true" : "false") << std::endl;
+
+    return 0;
+}
+
+
+5.--------
+
+#include <iostream>
+#include <algorithm>
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    int maxDepth(TreeNode* root) {
+        if (root == NULL) {
+            return 0;
+        } else {
+            return 1 + std::max(maxDepth(root->left), maxDepth(root->right));
+        }
+    }
+};
+
+int main() {
+    //       3
+    //      / \
+    //     9  20
+    //        /  \
+    //       15   7
+
+    TreeNode* root = new TreeNode(3);
+    root->left = new TreeNode(9);
+    root->right = new TreeNode(20);
+    root->right->left = new TreeNode(15);
+    root->right->right = new TreeNode(7);
+
+    Solution solution;
+    int maxDepth = solution.maxDepth(root);
+    std::cout << "Maximum depth: " << maxDepth << std::endl;
+
+    return 0;
+}
